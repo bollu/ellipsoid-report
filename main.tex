@@ -68,7 +68,60 @@ Leonid Genrikhovich Khachiyan proved that the algorithm runs in polynomial
 time. This was a breakthrough in the theory of linear programming, which
 proved that solving LP's is in \PTIME.
 
-\section{Description the algorithm: Checking for non-emptiness}
+\section{High level description the algorithm: Checking for non-emptiness}
+The ellipsoid algorithm is an algorithm that allows us to check for the
+non-emptiness of a system of linear equations. 
+
+
+An \textit{ellipsoid} in $\mathbb{R}^n$ is a set of points
+\[E \equiv \left\{ (x_1, x_2, \dots x_n) \mid \sum_i \frac{x_i^2}{a_i^2} \leq 1 \right\}\] for some
+constants $(a_1, a_2, \dots a_n)$. 
+
+The algorithm works by first bounding the polyhedra $P \equiv \{ x | Ax \leq b \}$ 
+with a large initial bounding ellipsoid, such that $P \subset E_0$. We now pick a
+random point $p \in E_0$, and check if this point is in the polyhedra $P$. If it
+is, then we are done, as we have found a feasible point $p \in P$. On the
+other hand, if $p \notin P$, we shrink the ellipsoid $E_0$ to a smaller
+ellipsoid $E_1$ such that $p \notin E_1$, but $P \subseteq E_1$. That is,
+we shrik the ellipsoid such that the point $p$ is no longer in the ellipsoid,
+but the polyhedra still is. We then repeat the process.
+
+Now, of course, one can imagine this process going on forever, since perhaps
+our polyhedra $P$ truly is empty, but we keep picking points in our ellipsoids,
+since our ellipsoid as described above can never shrink to the empty set.
+
+To prevent this case, we are also given a \textit{lower bound} $V_l$ on the volume
+of the polyhedra. Now, after some iteration, if the volume of the ellipsoid $Vol(E)$
+goes below $V_l$, we can conclude that $P \not\subseteq E$. Thus, we can
+terminate with infeasibility.
+
+Thus, for this algorithm to work, the main ingredients are:
+\begin{itemize}
+\item The polyhedra $P \equiv \{ x | Ax \leq b \}$ whose non-emptiness
+                is to be tested.
+\item The initial ellipsoid $E_0$ that bounds $P$.
+\item The lower bound on the volume of $P$, $V_l$ such that $0 < V_l \leq
+        Vol(P)$. 
+\item An algorithm which when given a point $x$ and the polyhedra $P$, either
+        certifies $x \in P$, or provides us information about how to separate
+                $x$ from $P$, so we can shrink our ellipsoid.
+\end{itemize}
+
+Given these ingredients, we show how to construct the algorithm.  We show later
+in the report how this can be used to solve LP's in polynomial time. Here, we
+present a specific version of the Ellipsoid algorithm. The more general version
+works over convex sets, and requires a gadget known as a \textit{separation
+oracle} which provides us the separation information of $x$ from $P$. In the
+case of LP, this gadget reduces to the Farkas' Lemma. So, we shall proceed to
+discuss the algorithm for the LP case only.
+
+
+\section{Detailed description of the algorithm}
+We are given a polyhedra defined by a system of constraints $P \equiv \{ x ~|~
+Ax \leq b \}$. We are also given a bounding ellipsoid $E_0$  for $P$, and a
+lower bound $V_l$ on the volume of $P$.
+
+
 
 \section{Using non-emptiness to solve LP's}
 So far, all we can do using the ellipsoid algorithm is to check if some
@@ -108,6 +161,12 @@ Thus, the ellipsoid algorithm can be used to solve for the optimality of a linea
 program, by starting from a non-emptiness check! This is beautiful, and proves
 a deep result of LP's: A certificate of non-emptiness is as good as a ceritificate
 of optimality.
+
+\section{Proof that ellipsoid algorithm is polynomial in input size}
+Here, we sketch the proof that the ellipsoid algorithm is polynomial
+in its input size.
+
+
 
 \bibliographystyle{IEEEtran}
 \bibliography{references.bib}
